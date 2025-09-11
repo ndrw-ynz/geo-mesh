@@ -1,3 +1,4 @@
+#include "Terrain/Terrain.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -14,7 +15,6 @@
 #include "Graphics/Shader.h"
 
 #include <iostream>
-#include <vector>
 #include <map>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -88,6 +88,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // build and compile our shader program
     // ------------------------------------
     Shader ourShader("data/shaders/terrain.vs.glsl", "data/shaders/terrain.fs.glsl");
@@ -160,229 +161,12 @@ int main() {
     glm::mat4 textProjection = glm::ortho(0.0f, (float)SCR_WIDTH, 0.0f, (float)SCR_HEIGHT);
     textShader.setMat4("projection", textProjection);
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices1[] = {
-        // positions // colors // texture coords
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
-
-        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f
-    };
-
-    float vertices2[] = {
-        // positions // colors // texture coords
-        0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f, // top right
-        0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f  // top left
-    };
-
-    unsigned int indices2[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3, // second triangle
-    };
-
-    GLuint VBOs[2], VAOs[2], EBO;
-    // FIRST
-    glGenVertexArrays(2, VAOs);
-    glGenBuffers(2, VBOs);
-    glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s),
-    // and then configure vertex attributes(s).
-    glBindVertexArray(VAOs[0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered
-    // VBO as the vertex attribute's bound vertex buffer object so afterwards we
-    // can safely unbind
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
-
-    // Position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-
-    glEnableVertexAttribArray(0);
-
-    // Color
-    // glVertexAttribPointer(1,
-    //                       3,
-    //                       GL_FLOAT,
-    //                       GL_FALSE,
-    //                       8 * sizeof(float),
-    //                       (void *)(3 * sizeof(float)));
-    // glEnableVertexAttribArray(1);
-
-    // Tex Coord
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // You can unbind the VAO afterwards so other VAO calls won't
-    // accidentally modify this VAO, but this rarely happens. Modifying
-    // other VAOs requires a call to glBindVertexArray anyways so we
-    // generally don't unbind VAOs (nor VBOs) when it's not directly
-    // necessary.
     glBindVertexArray(0);
-
-    // SECOND
-    glBindVertexArray(VAOs[1]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-
-    // Position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-
-    glEnableVertexAttribArray(0);
-
-    // Color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Tex Coord
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0);
-
-    // SET GENERATE AND SET 2D TEXTURE
-    GLuint texture[2];
-    glGenTextures(2, texture);
-
-    // first texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-    // set texture wrapping on coordinates
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filter on min/mag operations
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Load and generate texture
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load("data/textures/container.jpg", &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // second texture
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    // set texture coordinates
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set min/max params
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Load and generate texture
-    data = stbi_load("data/textures/awesomeface.png", &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // One can unbind the VBO and EBOs after unbinding VAO to work on other VAOs
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    // DEM DATA
-
-    // Extracting coordinates from DEM data
-    data = stbi_load("data/DEM/iceland_heightmap.png", &width, &height, &nrChannels, 0);
-    if (data) {
-        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-
-    std::vector<float> vertices;
-    float yScale = 64.0f / 256.0f, yShift = 16.0f;
-    int rez = 1;
-    unsigned bytePerPixel = nrChannels;
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            unsigned char *pixelOffset = data + (j + width * i) * bytePerPixel;
-            unsigned char y = pixelOffset[0];
-
-            // vertex
-            vertices.push_back(-height / 2.0f + height * i / (float)height); // vx
-            vertices.push_back((int)y * yScale - yShift);                    // vy
-            vertices.push_back(-width / 2.0f + width * j / (float)width);    // vz
-        }
-    }
-    std::cout << "Loaded " << vertices.size() / 3 << " vertices" << std::endl;
-    stbi_image_free(data);
-
-    std::vector<unsigned> indices;
-    for (unsigned i = 0; i < height - 1; i += rez) {
-        for (unsigned j = 0; j < width; j += rez) {
-            for (unsigned k = 0; k < 2; k++) {
-                indices.push_back(j + width * (i + k * rez));
-            }
-        }
-    }
-    std::cout << "Loaded " << indices.size() << " indices" << std::endl;
-
-    const int NUM_STRIPS = (height - 1) / rez;
-    const int NUM_VERTS_PER_STRIP = (width / rez) * 2 - 2;
-    std::cout << "Created lattice of " << NUM_STRIPS << " strips with " << NUM_VERTS_PER_STRIP << " triangles each"
-              << std::endl;
-    std::cout << "Created " << NUM_STRIPS * NUM_VERTS_PER_STRIP << " triangles total" << std::endl;
-
-    // first, configure the cube's VAO (and terrainVBO + terrainIBO)
-    unsigned int terrainVAO, terrainVBO, terrainIBO;
-    glGenVertexArrays(1, &terrainVAO);
-    glBindVertexArray(terrainVAO);
-
-    glGenBuffers(1, &terrainVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glGenBuffers(1, &terrainIBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
-
-    // uncomment this call to draw in wireframe polygons.
-    //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    glm::vec3 cubePositions[] = { glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-                                  glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-                                  glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-                                  glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-                                  glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f) };
+    Terrain terrain{};
+    terrain.Init();
 
     // render loop
     // -----------
@@ -408,7 +192,6 @@ int main() {
         textShader.use();
         RenderText(textShader, "FPS: " + std::to_string(fps), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 
-        // be sure to activate shader when setting uniforms/drawing objects
         ourShader.use();
 
         // view/projection transformations
@@ -422,14 +205,13 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         ourShader.setMat4("model", model);
 
-        // render the cube
-        glBindVertexArray(terrainVAO);
-        //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        for (unsigned strip = 0; strip < NUM_STRIPS; strip++) {
-            glDrawElements(GL_TRIANGLE_STRIP,       // primitive type
-                           NUM_VERTS_PER_STRIP + 2, // number of indices to render
-                           GL_UNSIGNED_INT,         // index data type
-                           (void *)(sizeof(unsigned) * (NUM_VERTS_PER_STRIP + 2) * strip)); // offset to starting index
+        glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        for (unsigned strip = 0; strip < terrain.numStrips; strip++) {
+            glDrawElements(GL_TRIANGLE_STRIP,        // primitive type
+                           terrain.numVertsPerStrip, // number of indices to render
+                           GL_UNSIGNED_INT,          // index data type
+                           (void *)(sizeof(uint32_t) * (terrain.numVertsPerStrip) * strip)); // offset to starting
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
@@ -441,13 +223,9 @@ int main() {
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(2, VAOs);
-    glDeleteBuffers(2, VBOs);
-    glDeleteVertexArrays(1, &terrainVAO);
-    glDeleteBuffers(1, &terrainVBO);
-    glDeleteBuffers(1, &terrainIBO);
     glDeleteVertexArrays(1, &cVAO);
     glDeleteBuffers(1, &cVBO);
+    terrain.GetTerrainMesh().GetMeshBuffer().DeleteBuffers();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
