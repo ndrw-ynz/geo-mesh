@@ -31,6 +31,12 @@ target_include_directories(stb_image PUBLIC external/stb_image)
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE external/glm)
 
+
+# -------------------------------
+# FreeType (text rendering)
+# -------------------------------
+add_subdirectory(external/freetype-2.14.0)
+
 # -------------------------------
 # Sources + Executable
 # -------------------------------
@@ -49,6 +55,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
     stb_image
     glm
+    freetype
 )
 
 # -------------------------------
