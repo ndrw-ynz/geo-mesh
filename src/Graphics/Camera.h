@@ -4,10 +4,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <iostream>
 // Defines several possible options for camera movement. Used as abstraction to
 // stay away from window-system specific input methods
-enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
+enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN };
 
 // Default camera values
 const float YAW = -90.0f;
@@ -39,8 +39,7 @@ class Camera {
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            float yaw = YAW,
            float pitch = PITCH)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),
-          MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
@@ -48,16 +47,8 @@ class Camera {
         updateCameraVectors();
     }
     // constructor with scalar values
-    Camera(float posX,
-           float posY,
-           float posZ,
-           float upX,
-           float upY,
-           float upZ,
-           float yaw,
-           float pitch)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),
-          MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
         Yaw = yaw;
@@ -67,30 +58,38 @@ class Camera {
 
     // returns the view matrix calculated using Euler Angles and the LookAt
     // Matrix
-    glm::mat4 GetViewMatrix() {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
+    glm::mat4 GetViewMatrix() { return glm::lookAt(Position, Position + Front, Up); }
 
     // processes input received from any keyboard-like input system. Accepts
     // input parameter in the form of camera defined ENUM (to abstract it from
     // windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime) {
         float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
+        switch (direction) {
+        case FORWARD:
             Position += Front * velocity;
-        if (direction == BACKWARD)
+            break;
+        case BACKWARD:
             Position -= Front * velocity;
-        if (direction == LEFT)
+            break;
+        case LEFT:
             Position -= Right * velocity;
-        if (direction == RIGHT)
+            break;
+        case RIGHT:
             Position += Right * velocity;
+            break;
+        case UP:
+            Position += Up * velocity;
+            break;
+        case DOWN:
+            Position -= Up * velocity;
+            break;
+        }
     }
 
     // processes input received from a mouse input system. Expects the offset
     // value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset,
-                              float yoffset,
-                              GLboolean constrainPitch = true) {
+    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true) {
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
@@ -130,10 +129,9 @@ class Camera {
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Front = glm::normalize(front);
         // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(
-            Front, WorldUp)); // normalize the vectors, because their length
-                              // gets closer to 0 the more you look up or down
-                              // which results in slower movement.
+        Right = glm::normalize(glm::cross(Front, WorldUp)); // normalize the vectors, because their length
+                                                            // gets closer to 0 the more you look up or down
+                                                            // which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
     }
 };
