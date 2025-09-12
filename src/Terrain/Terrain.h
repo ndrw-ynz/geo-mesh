@@ -11,8 +11,9 @@ class Terrain {
     // read stbi, and create vertex and indices normals etc.
     int numStrips;
     int numVertsPerStrip;
+    // TODO: add more relevant data from the terrain (ex. rez, width,height)
 
-    void Init();
+    void Init(int width, int height);
     Mesh &GetTerrainMesh() { return terrainMesh; }
 
   private:
