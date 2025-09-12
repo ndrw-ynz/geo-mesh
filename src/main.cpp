@@ -91,9 +91,48 @@ int main() {
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("data/shaders/terrain.vs.glsl", "data/shaders/terrain.fs.glsl");
+    Shader terrainShader("data/shaders/terrain.vs.glsl",
+                         "data/shaders/terrain.fs.glsl",
+                         nullptr,
+                         "data/shaders/terrain.tcs.glsl",
+                         "data/shaders/terrain.tes.glsl");
     Shader textShader("data/shaders/text.vs.glsl", "data/shaders/text.fs.glsl");
 
+    // ------------------------------------
+    // DEM
+    // ------------------------------------
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Extracting coordinates from DEM data
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("data/DEM/iceland_heightmap.png", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        terrainShader.setInt("heightMap", 0);
+        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+
+    stbi_image_free(data);
+
+    Terrain terrain{};
+    terrain.Init(width, height);
+
+    // ------------------------------------
+    // Text Rendering
+    // ------------------------------------
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
@@ -165,8 +204,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    Terrain terrain{};
-    terrain.Init();
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
     // render loop
     // -----------
@@ -192,27 +230,30 @@ int main() {
         textShader.use();
         RenderText(textShader, "FPS: " + std::to_string(fps), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 
-        ourShader.use();
+        terrainShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
 
         // view/projection transformations
         glm::mat4 projection =
             glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+        terrainShader.setMat4("projection", projection);
+        terrainShader.setMat4("view", view);
 
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        ourShader.setMat4("model", model);
+        terrainShader.setMat4("model", model);
 
         glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        for (unsigned strip = 0; strip < terrain.numStrips; strip++) {
-            glDrawElements(GL_TRIANGLE_STRIP,        // primitive type
-                           terrain.numVertsPerStrip, // number of indices to render
-                           GL_UNSIGNED_INT,          // index data type
-                           (void *)(sizeof(uint32_t) * (terrain.numVertsPerStrip) * strip)); // offset to starting
-        }
+        glDrawArrays(GL_PATCHES, 0, 4 * 20 * 20);
+        // for (unsigned strip = 0; strip < terrain.numStrips; strip++) {
+        //     glDrawElements(GL_TRIANGLE_STRIP,        // primitive type
+        //                    terrain.numVertsPerStrip, // number of indices to render
+        //                    GL_UNSIGNED_INT,          // index data type
+        //                    (void *)(sizeof(uint32_t) * (terrain.numVertsPerStrip) * strip)); // offset to starting
+        // }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
