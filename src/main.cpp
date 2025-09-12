@@ -91,44 +91,12 @@ int main() {
 
     // build and compile our shader program
     // ------------------------------------
+    Shader textShader("data/shaders/text.vs.glsl", "data/shaders/text.fs.glsl");
     Shader terrainShader("data/shaders/terrain.vs.glsl",
                          "data/shaders/terrain.fs.glsl",
                          nullptr,
                          "data/shaders/terrain.tcs.glsl",
                          "data/shaders/terrain.tes.glsl");
-    Shader textShader("data/shaders/text.vs.glsl", "data/shaders/text.fs.glsl");
-
-    // ------------------------------------
-    // DEM
-    // ------------------------------------
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Extracting coordinates from DEM data
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("data/DEM/iceland_heightmap.png", &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        terrainShader.setInt("heightMap", 0);
-        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-
-    stbi_image_free(data);
-
-    Terrain terrain{};
-    terrain.Init(width, height);
 
     // ------------------------------------
     // Text Rendering
@@ -200,6 +168,37 @@ int main() {
     glm::mat4 textProjection = glm::ortho(0.0f, (float)SCR_WIDTH, 0.0f, (float)SCR_HEIGHT);
     textShader.setMat4("projection", textProjection);
 
+    // ------------------------------------
+    // DEM
+    // ------------------------------------
+    unsigned int textureDEM;
+    glGenTextures(1, &textureDEM);
+    glBindTexture(GL_TEXTURE_2D, textureDEM);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Extracting coordinates from DEM data
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("data/DEM/iceland_heightmap.png", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        terrainShader.setInt("heightMap", 0);
+        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+
+    stbi_image_free(data);
+
+    Terrain terrain{};
+    terrain.Init(width, height);
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -227,12 +226,15 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        textShader.use();
+        // render Text
+        // --------------------
         RenderText(textShader, "FPS: " + std::to_string(fps), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 
+        // render DEM
+        // --------------------
         terrainShader.use();
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, textureDEM);
 
         // view/projection transformations
         glm::mat4 projection =
@@ -246,14 +248,8 @@ int main() {
         terrainShader.setMat4("model", model);
 
         glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_PATCHES, 0, 4 * 20 * 20);
-        // for (unsigned strip = 0; strip < terrain.numStrips; strip++) {
-        //     glDrawElements(GL_TRIANGLE_STRIP,        // primitive type
-        //                    terrain.numVertsPerStrip, // number of indices to render
-        //                    GL_UNSIGNED_INT,          // index data type
-        //                    (void *)(sizeof(uint32_t) * (terrain.numVertsPerStrip) * strip)); // offset to starting
-        // }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
