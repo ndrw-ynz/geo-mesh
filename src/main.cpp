@@ -89,7 +89,6 @@ int main() {
         return -1;
     }
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -116,7 +115,7 @@ int main() {
         std::cout << "ERROR:FREETYPE: Failed to load font" << std::endl;
         return -1;
     } else {
-        FT_Set_Pixel_Sizes(face, 0, 48);
+        FT_Set_Pixel_Sizes(face, 0, 36);
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -243,10 +242,7 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // render Text
-        // --------------------
-        RenderText(textShader, "FPS: " + std::to_string(fps), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-
+        glEnable(GL_DEPTH_TEST);
         // render DEM
         // --------------------
         terrainShader.use();
@@ -277,6 +273,10 @@ int main() {
         terrainShader.setInt("renderMode", demRenderMode);
         glDrawArrays(GL_PATCHES, 0, 4 * 20 * 20);
 
+        // render Text
+        // --------------------
+        glDisable(GL_DEPTH_TEST);
+        RenderText(textShader, "FPS: " + std::to_string(fps), 15.0f, 15.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
         // -------------------------------------------------------------------------------
