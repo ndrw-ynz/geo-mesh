@@ -25,12 +25,14 @@ void processInput(GLFWwindow *window);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
 // modes for rendering DEM
-enum class DEMDisplayMode { GRAYSCALE, WIREFRAME };
+enum DEMDisplayMode { FILL, WIREFRAME };
+enum DEMRenderMode { GRAYSCALE, BIOME };
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 DEMDisplayMode demDisplayMode;
+DEMRenderMode demRenderMode;
 
 // Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 Camera camera(glm::vec3(67.0f, 50.5f, 169.9f), glm::vec3(0.0f, 1.0f, 0.0f), -128.1f, -42.4f);
@@ -200,6 +202,19 @@ int main() {
 
     Terrain terrain{};
     terrain.Init(width, height);
+    int numBiomes = 5;
+    float biomeHeights[5] = { 0.2f, 0.4f, 0.6f, 0.8f, 1.1f };
+    glm::vec3 biomeColors[5] = {
+        glm::vec3(0.1f, 0.1f, 0.3f),  // deep frozen water
+        glm::vec3(0.3f, 0.5f, 0.7f),  // glacial blue
+        glm::vec3(0.6f, 0.7f, 0.8f),  // icy rock
+        glm::vec3(0.8f, 0.85f, 0.9f), // compacted snow
+        glm::vec3(1.0f, 1.0f, 1.0f)   // pure snow
+    };
+    terrainShader.use();
+    terrainShader.setInt("uNumBiomes", numBiomes);
+    terrainShader.setFloatArray("uBiomeHeights", biomeHeights, numBiomes);
+    terrainShader.setVec3Array("uBiomeColors", biomeColors, numBiomes);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -252,13 +267,14 @@ int main() {
         glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
         // toggle wireframe mode
         switch (demDisplayMode) {
-        case DEMDisplayMode::GRAYSCALE:
+        case DEMDisplayMode::FILL:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
         case DEMDisplayMode::WIREFRAME:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
         }
+        terrainShader.setInt("renderMode", demRenderMode);
         glDrawArrays(GL_PATCHES, 0, 4 * 20 * 20);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
@@ -319,8 +335,14 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
         case GLFW_KEY_SPACE:
             demDisplayMode = DEMDisplayMode::WIREFRAME;
             break;
+        case GLFW_KEY_F:
+            demDisplayMode = DEMDisplayMode::FILL;
+            break;
         case GLFW_KEY_G:
-            demDisplayMode = DEMDisplayMode::GRAYSCALE;
+            demRenderMode = DEMRenderMode::GRAYSCALE;
+            break;
+        case GLFW_KEY_B:
+            demRenderMode = DEMRenderMode::BIOME;
             break;
         default:
             break;
