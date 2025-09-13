@@ -150,6 +150,10 @@ class Shader {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
     // ------------------------------------------------------------------------
+    void setFloatArray(const std::string &name, const float *values, int count) const {
+        glUniform1fv(glGetUniformLocation(ID, name.c_str()), count, values);
+    }
+    // ------------------------------------------------------------------------
     void setVec2(const std::string &name, const glm::vec2 &value) const {
         glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
@@ -162,6 +166,9 @@ class Shader {
     }
     void setVec3(const std::string &name, float x, float y, float z) const {
         glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
+    }
+    void setVec3Array(const std::string &name, const glm::vec3 *values, int count) const {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), count, &values[0][0]);
     }
     // ------------------------------------------------------------------------
     void setVec4(const std::string &name, const glm::vec4 &value) const {
