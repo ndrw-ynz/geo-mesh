@@ -25,10 +25,10 @@ void main() {
         // ---------------------------------------
         // Implement LOD by patch based on tessellation parameters
         // Step 1: Setting parameters for controlling tessellation
-        const int MIN_TESS_LEVEL = 4;
-        const int MAX_TESS_LEVEL = 64;
+        const int MIN_TESS_LEVEL = 8;
+        const int MAX_TESS_LEVEL = 100;
         const float MIN_DISTANCE = 20;
-        const float MAX_DISTANCE = 400;
+        const float MAX_DISTANCE = 300;
 
         // Step 2: Transform each vertex of the patch into eye space
         vec4 eyeSpacePos00 = view * model * gl_in[0].gl_Position;
