@@ -24,11 +24,13 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
+// modes for rendering DEM
+enum class DEMDisplayMode { GRAYSCALE, WIREFRAME };
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-int useWireframe = 0;
-int displayGrayscale = 0;
+DEMDisplayMode demDisplayMode;
 
 // Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 Camera camera(glm::vec3(67.0f, 50.5f, 169.9f), glm::vec3(0.0f, 1.0f, 0.0f), -128.1f, -42.4f);
@@ -248,7 +250,15 @@ int main() {
         terrainShader.setMat4("model", model);
 
         glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // toggle wireframe mode
+        switch (demDisplayMode) {
+        case DEMDisplayMode::GRAYSCALE:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        case DEMDisplayMode::WIREFRAME:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+        }
         glDrawArrays(GL_PATCHES, 0, 4 * 20 * 20);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
@@ -307,10 +317,10 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
     if (action == GLFW_PRESS) {
         switch (key) {
         case GLFW_KEY_SPACE:
-            useWireframe = 1 - useWireframe;
+            demDisplayMode = DEMDisplayMode::WIREFRAME;
             break;
         case GLFW_KEY_G:
-            displayGrayscale = 1 - displayGrayscale;
+            demDisplayMode = DEMDisplayMode::GRAYSCALE;
             break;
         default:
             break;
