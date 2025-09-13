@@ -358,6 +358,9 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
 // render line of text
 // -------------------
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color) {
+    // avoid rendering text as wireframe
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     // activate corresponding render state
     float copyX = x;
     shader.use();
