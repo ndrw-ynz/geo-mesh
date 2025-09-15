@@ -10,6 +10,7 @@ uniform mat4 projection;
 in vec2 TextureCoord[];
 
 out float Height;
+out vec3 Normal;
 
 void main() {
     // get patch coordinate
@@ -29,7 +30,7 @@ void main() {
     vec2 texCoord = (t1 - t0) * v + t0;
 
     // lookup texel at patch coordinate for height and scale + shift as desired
-    Height = texture(heightMap, texCoord).y * 64.0 - 16.0;
+    Height = texture(heightMap, texCoord).x * 64.0 - 16.0;
 
     // ----------------------------------------------------------------------
     // retrieve control point position coordinates
@@ -54,4 +55,5 @@ void main() {
     // ----------------------------------------------------------------------
     // output patch point position in clip space
     gl_Position = projection * view * model * p;
+    Normal = normal.xyz;
 }
