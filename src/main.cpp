@@ -215,6 +215,12 @@ int main() {
     terrainShader.setFloatArray("uBiomeHeights", biomeHeights, numBiomes);
     terrainShader.setVec3Array("uBiomeColors", biomeColors, numBiomes);
 
+    terrainShader.setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    terrainShader.setFloat("uAmbientStrength", 0.1f);
+    terrainShader.setFloat("uSpecularStrength", 0.5f);
+    terrainShader.setVec3("uLightDir", glm::vec3(-1.0f, -1.0f, 1.0f));
+    terrainShader.setVec3("uViewPos", camera.Position);
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -246,6 +252,9 @@ int main() {
         // render DEM
         // --------------------
         terrainShader.use();
+        // Lambertian shading, uncomment lines to experiment
+        // float t = glfwGetTime();
+        // terrainShader.setVec3("uLightDir", glm::vec3(cos(t * 2.0), sin(t * 2.0), 1.0f));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureDEM);
 
