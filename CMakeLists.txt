@@ -43,6 +43,7 @@ add_subdirectory(external/freetype-2.14.0)
 # -------------------------------
 add_library(imgui
     external/imgui/imgui.cpp
+    external/imgui/imgui_demo.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp
     external/imgui/imgui_widgets.cpp
