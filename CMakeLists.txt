@@ -37,6 +37,20 @@ target_include_directories(glm INTERFACE external/glm)
 # -------------------------------
 add_subdirectory(external/freetype-2.14.0)
 
+
+# -------------------------------
+# Dear ImGui 
+# -------------------------------
+add_library(imgui
+    external/imgui/imgui.cpp
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_tables.cpp
+    external/imgui/imgui_widgets.cpp
+    external/imgui/backends/imgui_impl_glfw.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui PUBLIC external/imgui external/imgui/backend)
+
 # -------------------------------
 # Sources + Executable
 # -------------------------------
@@ -56,6 +70,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     stb_image
     glm
     freetype
+    imgui
 )
 
 # -------------------------------
