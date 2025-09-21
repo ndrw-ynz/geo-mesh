@@ -1,5 +1,4 @@
 #pragma once
-
 #include <glad/glad.h>
 #include <vector>
 #include <cstdint>
@@ -8,8 +7,10 @@
 
 class MeshBuffer {
   public:
+    void AllocateBuffers(size_t vertexCount);
     void AllocateBuffers(size_t vertexCount, size_t indexCount);
-    void UpdateBuffers(std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
+    void UpdateBuffers(const std::vector<Vertex> &vertices);
+    void UpdateBuffers(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
     void DeleteBuffers();
 
     const GLuint GetVAO() const { return m_VAO; }

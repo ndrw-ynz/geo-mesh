@@ -1,5 +1,30 @@
 #include "MeshBuffer.h"
 
+void MeshBuffer::AllocateBuffers(size_t vertexCount) {
+    GLsizei requestedVertexCount = static_cast<GLsizei>(vertexCount);
+
+    glGenVertexArrays(1, &m_VAO);
+    glGenBuffers(1, &m_VBO);
+    m_EBO = 0;
+
+    glBindVertexArray(m_VAO);
+
+    // Vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * requestedVertexCount, nullptr, GL_DYNAMIC_DRAW);
+
+    // Vertex Attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void MeshBuffer::AllocateBuffers(size_t vertexCount, size_t indexCount) {
     GLsizei requestedVertexCount = static_cast<GLsizei>(vertexCount);
     GLsizei requestedIndexCount = static_cast<GLsizei>(indexCount);
@@ -28,10 +53,22 @@ void MeshBuffer::AllocateBuffers(size_t vertexCount, size_t indexCount) {
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void MeshBuffer::UpdateBuffers(std::vector<Vertex> &vertices, std::vector<uint32_t> &indices) {
+void MeshBuffer::UpdateBuffers(const std::vector<Vertex> &vertices) {
+    GLsizei newVertexCount = static_cast<GLsizei>(vertices.size());
+
+    glBindVertexArray(m_VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * newVertexCount, vertices.data(), GL_DYNAMIC_DRAW);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void MeshBuffer::UpdateBuffers(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices) {
     GLsizei newVertexCount = static_cast<GLsizei>(vertices.size());
     GLsizei newIndexCount = static_cast<GLsizei>(indices.size());
 
@@ -45,7 +82,7 @@ void MeshBuffer::UpdateBuffers(std::vector<Vertex> &vertices, std::vector<uint32
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void MeshBuffer::DeleteBuffers() {
