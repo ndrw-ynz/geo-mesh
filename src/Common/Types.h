@@ -16,9 +16,9 @@ struct Vertex {
 
 struct Vertex2D {
     Vertex2D() = default;
-    Vertex2D(glm::vec3 pos = glm::vec3(0), glm::vec2 texCoord = glm::vec2(0)) : position{ pos }, uv{ texCoord } {}
+    Vertex2D(glm::vec2 pos = glm::vec2(0), glm::vec2 texCoord = glm::vec2(0)) : position{ pos }, uv{ texCoord } {}
 
-    glm::vec3 position = glm::vec3(0);
+    glm::vec2 position = glm::vec2(0);
     glm::vec2 uv = glm::vec2(0);
 };
 struct Character {
