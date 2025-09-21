@@ -1,5 +1,7 @@
 #include "Mesh2D.h"
 
+void Mesh2D::AllocateMesh2DBuffers(int allocatedVertexCount) { m_mesh2DBuffer.AllocateBuffers(allocatedVertexCount); }
+
 Mesh2D::Mesh2D(std::vector<Vertex2D> vertices) : m_vertices{ vertices } {
     m_mesh2DBuffer.AllocateBuffers(vertices.size());
     m_mesh2DBuffer.UpdateBuffers(vertices);

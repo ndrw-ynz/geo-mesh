@@ -11,6 +11,7 @@ class Mesh2D {
     Mesh2D(std::vector<Vertex2D> vertices);
     Mesh2D(std::vector<Vertex2D> vertices, std::vector<uint32_t> indices);
 
+    void AllocateMesh2DBuffers(int allocatedVertexCount);
     std::vector<Vertex2D> &GetVertices() { return m_vertices; }
     std::vector<uint32_t> &GetIndices() { return m_indices; }
 
