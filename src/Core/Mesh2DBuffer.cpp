@@ -12,9 +12,10 @@ void Mesh2DBuffer::AllocateBuffers(size_t vertexCount) {
     // Vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * requestedVertexCount, nullptr, GL_DYNAMIC_DRAW);
+    m_allocatedVertexCount = vertexCount;
 
     // Vertex Attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, position));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, position));
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, uv));
     glEnableVertexAttribArray(1);
@@ -36,13 +37,15 @@ void Mesh2DBuffer::AllocateBuffers(size_t vertexCount, size_t indexCount) {
     // Vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * requestedVertexCount, nullptr, GL_DYNAMIC_DRAW);
+    m_allocatedVertexCount = vertexCount;
 
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * requestedIndexCount, nullptr, GL_DYNAMIC_DRAW);
+    m_allocatedIndexCount = indexCount;
 
     // Vertex Attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, position));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, position));
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *)offsetof(Vertex2D, uv));
     glEnableVertexAttribArray(1);
@@ -55,12 +58,14 @@ void Mesh2DBuffer::AllocateBuffers(size_t vertexCount, size_t indexCount) {
 void Mesh2DBuffer::UpdateBuffers(const std::vector<Vertex2D> &vertices) {
     GLsizei newVertexCount = static_cast<GLsizei>(vertices.size());
 
-    glBindVertexArray(m_VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * newVertexCount, vertices.data(), GL_DYNAMIC_DRAW);
+    if (newVertexCount > m_allocatedVertexCount) {
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * newVertexCount, vertices.data(), GL_DYNAMIC_DRAW);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex2D) * newVertexCount, vertices.data());
+    }
+    m_allocatedVertexCount = newVertexCount;
 
-    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -68,15 +73,23 @@ void Mesh2DBuffer::UpdateBuffers(const std::vector<Vertex2D> &vertices, const st
     GLsizei newVertexCount = static_cast<GLsizei>(vertices.size());
     GLsizei newIndexCount = static_cast<GLsizei>(indices.size());
 
-    glBindVertexArray(m_VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * newVertexCount, vertices.data(), GL_DYNAMIC_DRAW);
+    if (newVertexCount > m_allocatedVertexCount) {
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * newVertexCount, vertices.data(), GL_DYNAMIC_DRAW);
+    } else {
+
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex2D) * newVertexCount, vertices.data());
+    }
+    m_allocatedVertexCount = newVertexCount;
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * newIndexCount, indices.data(), GL_DYNAMIC_DRAW);
+    if (newIndexCount > m_allocatedIndexCount) {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * newIndexCount, indices.data(), GL_DYNAMIC_DRAW);
+    } else {
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * newIndexCount, vertices.data());
+    }
+    m_allocatedIndexCount = newIndexCount;
 
-    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

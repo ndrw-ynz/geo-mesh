@@ -20,4 +20,6 @@ class Mesh2DBuffer {
     GLuint m_VAO;
     GLuint m_VBO;
     GLuint m_EBO;
+    int m_allocatedVertexCount;
+    int m_allocatedIndexCount;
 };
