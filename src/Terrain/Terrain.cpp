@@ -45,24 +45,11 @@ void Terrain::Init(int width, int height) {
     std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
     std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
 
-    std::vector<uint32_t> indices;
-    for (uint32_t i = 0; i < height - 1; i += rez) {
-        for (uint32_t j = 0; j < width; j += rez) {
-            for (uint32_t k = 0; k < 2; k++) {
-                indices.push_back(j + width * (i + k * rez));
-            }
-        }
-    }
-    std::cout << "Loaded " << indices.size() << " indices" << std::endl;
-
     numStrips = (height - 1) / rez;
     numVertsPerStrip = (width / rez) * 2;
     std::cout << "Created lattice of " << numStrips << " strips with " << numVertsPerStrip << " triangles each"
               << std::endl;
     std::cout << "Created " << numStrips * numVertsPerStrip << " triangles total" << std::endl;
 
-    terrainMesh = Mesh(vertices, indices);
-
-    std::cout << "Index buffer size: " << terrainMesh.GetIndices().size() << std::endl;
-    std::cout << "Expected: " << numStrips * numVertsPerStrip << std::endl;
+    terrainMesh = Mesh(vertices);
 }
