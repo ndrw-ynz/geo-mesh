@@ -6,6 +6,9 @@
 #include "AssetManager/AssetManager.h"
 #include "Renderer/Renderer.h"
 #include "UI/TextUI.h"
+#include "ImGui/ImGuiLayer.h"
+
+#include <GLFW/glfw3.h>
 
 namespace Engine {
 enum DEMDisplayMode { FILL, WIREFRAME };
@@ -16,6 +19,7 @@ void BeginFrame();
 void Update();
 void EndFrame();
 void ProcessKeyEvents();
+void Cleanup();
 
 DEMDisplayMode GetDEMDisplayMode();
 DEMRenderMode GetDEMRenderMode();

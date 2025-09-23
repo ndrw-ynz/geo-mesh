@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "UI/TextUI.h"
 
 namespace Engine {
 DEMDisplayMode g_demDisplayMode;
@@ -70,6 +71,12 @@ void ProcessKeyEvents() {
         navigatorCamera.ProcessMouseMovement(Input::GetMouseOffsetX(), Input::GetMouseOffsetY());
         navigatorCamera.ProcessMouseScroll(static_cast<float>(Input::GetScrollWheelValue()));
     }
+}
+
+void Cleanup() {
+    World::Cleanup();
+    TextUI::Cleanup();
+    ImGuiLayer::Cleanup();
 }
 
 DEMDisplayMode GetDEMDisplayMode() { return g_demDisplayMode; }

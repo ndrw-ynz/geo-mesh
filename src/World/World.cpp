@@ -22,7 +22,7 @@ void Update() {
     g_fps = 1.0f / g_deltaTime;
 }
 
-void Cleanup() {}
+void Cleanup() { g_terrain.GetTerrainMesh().GetMeshBuffer().DeleteBuffers(); }
 float GetDeltaTime() { return g_deltaTime; }
 int GetFPS() { return g_fps; }
 

@@ -1,6 +1,4 @@
 #include "Engine/Engine.h"
-#include "UI/TextUI.h"
-#include "World/World.h"
 
 #include <GLFW/glfw3.h>
 
@@ -19,8 +17,7 @@ int main() {
         Engine::EndFrame();
     }
 
-    TextUI::GetTextUI().GetMesh2DBuffer().DeleteBuffers();
-    World::GetTerrain().GetTerrainMesh().GetMeshBuffer().DeleteBuffers();
+    Engine::Cleanup();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
