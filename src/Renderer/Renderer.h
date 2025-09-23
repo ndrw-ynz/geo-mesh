@@ -5,9 +5,14 @@
 #include "Engine/Engine.h"
 #include "Engine/GLFWIntegration.h"
 #include "UI/TextUI.h"
+#include "Settings/Settings.h"
+#include "imgui.h"
+#include "backends/imgui_impl_opengl3.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 namespace Renderer {
 
@@ -19,6 +24,7 @@ void Render();
 // Render passes
 void TextPass();
 void TerrainPass();
+void ImGuiPass();
 
 // Text
 void RenderText(

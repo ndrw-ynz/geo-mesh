@@ -14,5 +14,6 @@ void Render() {
 
     TerrainPass();
     TextPass();
+    ImGuiPass();
 }
 } // namespace Renderer
