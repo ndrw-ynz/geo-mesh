@@ -6,11 +6,13 @@ DEMRenderMode g_demRenderMode;
 
 void Init() {
     GLFWIntegration::Init();
+
     Input::Init(GLFWIntegration::GetWindowPointer());
     AssetManager::Init();
     World::Init();
     TextUI::Init();
     Renderer::Init();
+    ImGuiLayer::Init();
 }
 
 void BeginFrame() { GLFWIntegration::BeginFrame(); }
@@ -26,6 +28,8 @@ void EndFrame() { GLFWIntegration::EndFrame(); }
 
 void ProcessKeyEvents() {
     Camera &navigatorCamera = World::GetNavigator().GetCamera();
+    GLFWwindow *window = GLFWIntegration::GetWindowPointer();
+    int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
 
     if (Input::KeyPressed(GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(GLFWIntegration::GetWindowPointer(), true);
@@ -51,8 +55,21 @@ void ProcessKeyEvents() {
     if (Input::KeyPressed(GLFW_KEY_B))
         g_demRenderMode = DEMRenderMode::BIOME;
 
-    navigatorCamera.ProcessMouseMovement(Input::GetMouseOffsetX(), Input::GetMouseOffsetY());
-    navigatorCamera.ProcessMouseScroll(static_cast<float>(Input::GetScrollWheelValue()));
+    if (Input::KeyPressed(GLFW_KEY_M)) {
+        switch (cursorMode) {
+        case GLFW_CURSOR_DISABLED:
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
+        case GLFW_CURSOR_NORMAL:
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            break;
+        }
+    }
+
+    if (cursorMode == GLFW_CURSOR_DISABLED) {
+        navigatorCamera.ProcessMouseMovement(Input::GetMouseOffsetX(), Input::GetMouseOffsetY());
+        navigatorCamera.ProcessMouseScroll(static_cast<float>(Input::GetScrollWheelValue()));
+    }
 }
 
 DEMDisplayMode GetDEMDisplayMode() { return g_demDisplayMode; }
