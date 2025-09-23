@@ -6,6 +6,12 @@ layout(vertices = 4) out;
 uniform mat4 model;
 uniform mat4 view;
 
+// Tessellation controls
+uniform int uMinTessLevel;
+uniform int uMaxTessLevel;
+uniform float uMinLODDistance;
+uniform float uMaxLODDistance;
+
 // Input uv from vertex shader
 in vec2 TexCoord[];
 // Output uv to tessellation evaluation shader
@@ -25,10 +31,10 @@ void main() {
         // ---------------------------------------
         // Implement LOD by patch based on tessellation parameters
         // Step 1: Setting parameters for controlling tessellation
-        const int MIN_TESS_LEVEL = 8;
-        const int MAX_TESS_LEVEL = 100;
-        const float MIN_DISTANCE = 20;
-        const float MAX_DISTANCE = 300;
+        const int MIN_TESS_LEVEL = uMinTessLevel;
+        const int MAX_TESS_LEVEL = uMaxTessLevel;
+        const float MIN_DISTANCE = uMinLODDistance;
+        const float MAX_DISTANCE = uMaxLODDistance;
 
         // Step 2: Transform each vertex of the patch into eye space
         vec4 eyeSpacePos00 = view * model * gl_in[0].gl_Position;
