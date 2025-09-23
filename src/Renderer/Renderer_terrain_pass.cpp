@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "World/World.h"
 
 namespace Renderer {
 
@@ -59,6 +58,12 @@ void TerrainPass() {
     terrainShader->setMat4("view", view);
     terrainShader->setMat4("model", model);
     terrainShader->setInt("renderMode", Engine::GetDEMRenderMode());
+
+    // Dynamic LOD tessellation params
+    terrainShader->setInt("uMinTessLevel", Settings::GetMinTessLevel());
+    terrainShader->setInt("uMaxTessLevel", Settings::GetMaxTessLevel());
+    terrainShader->setFloat("uMinLODDistance", Settings::GetMinLODDistance());
+    terrainShader->setFloat("uMaxLODDistance", Settings::GetMaxLODDistance());
 
     glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
     // toggle wireframe mode
