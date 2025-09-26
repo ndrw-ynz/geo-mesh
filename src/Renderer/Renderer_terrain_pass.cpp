@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Settings/Settings.h"
 
 namespace Renderer {
 
@@ -19,9 +20,6 @@ void InitTerrain() {
     terrainShader->setFloatArray("uBiomeHeights", biomeHeights, numBiomes);
     terrainShader->setVec3Array("uBiomeColors", biomeColors, numBiomes);
 
-    terrainShader->setVec3("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    terrainShader->setFloat("uAmbientStrength", 0.1f);
-    terrainShader->setFloat("uSpecularStrength", 0.5f);
     terrainShader->setVec3("uLightDir", glm::vec3(-1.0f, -1.0f, 1.0f));
 
     glBindVertexArray(0);
@@ -64,6 +62,9 @@ void TerrainPass() {
     terrainShader->setInt("uMaxTessLevel", Settings::GetMaxTessLevel());
     terrainShader->setFloat("uMinLODDistance", Settings::GetMinLODDistance());
     terrainShader->setFloat("uMaxLODDistance", Settings::GetMaxLODDistance());
+    // Lighting/shading params
+    terrainShader->setVec3("uLightColor", Settings::GetLightColor());
+    terrainShader->setFloat("uAmbientStrength", Settings::GetAmbientStrength());
 
     glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
     // toggle wireframe mode

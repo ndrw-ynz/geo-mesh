@@ -1,4 +1,5 @@
 #include "Settings.h"
+#include "imgui.h"
 
 namespace Settings {
 
@@ -17,6 +18,17 @@ void CreateTerrainSettings() {
         ImGui::SliderFloat("Min LOD Distance", &GetMinLODDistance(), 20, 100);
         ImGui::SliderFloat("Max LOD Distance", &GetMaxLODDistance(), 100, 800);
     }
+
+    if (ImGui::CollapsingHeader("Lighting")) {
+        ImGui::ColorPicker3("Directional Light Color",
+                            glm::value_ptr(GetLightColor()),
+                            ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview |
+                                ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+        ImGui::Text("Shading Parameters");
+        ImGui::SliderFloat("Ambient Strength", &GetAmbientStrength(), 0.0f, 1.0f);
+    }
+
     ImGui::End();
 }
 
