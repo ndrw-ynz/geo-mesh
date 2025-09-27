@@ -12,6 +12,8 @@ int g_mouseYPrevFrame = 0;
 int g_scrollWheelValue = 0;
 int g_scrollWheelOffsetY = 0;
 // Keyboard
+bool g_keyDown[372];
+bool g_prevFrameKeyDown[372];
 bool g_keyPress[372];
 
 GLFWwindow *g_window;
@@ -46,11 +48,15 @@ void Update() {
 
     // Update Keyboard
     for (int i = 32; i < 349; i++) {
-        g_keyPress[i] = glfwGetKey(g_window, i) == GLFW_PRESS;
+        g_keyDown[i] = glfwGetKey(g_window, i) == GLFW_PRESS;
+        g_keyPress[i] = g_keyDown[i] && !g_prevFrameKeyDown[i];
+
+        g_prevFrameKeyDown[i] = g_keyDown[i];
     }
 }
 
-bool KeyPressed(unsigned int keycode) { return g_keyPress[keycode]; }
+bool KeyDown(unsigned int keycode) { return g_keyDown[keycode]; }
+bool KeyPress(unsigned int keycode) { return g_keyPress[keycode]; }
 
 int GetMouseOffsetX() { return g_mouseOffsetX; }
 int GetMouseOffsetY() { return g_mouseOffsetY; }
