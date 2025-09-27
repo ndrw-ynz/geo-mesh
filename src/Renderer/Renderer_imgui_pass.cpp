@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Settings/Settings.h"
 
 namespace Renderer {
 
@@ -7,7 +8,9 @@ void ImGuiPass() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    Settings::CreateTerrainSettings();
+    if (Settings::IsShown()) {
+        Settings::CreateTerrainSettings();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

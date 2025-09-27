@@ -11,6 +11,9 @@ namespace Settings {
 
 void CreateTerrainSettings();
 
+bool IsShown();
+void SetIsShown(bool isShown);
+
 int &GetMinTessLevel();
 int &GetMaxTessLevel();
 float &GetMinLODDistance();

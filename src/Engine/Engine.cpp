@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Settings/Settings.h"
 #include "UI/TextUI.h"
 
 namespace Engine {
@@ -32,36 +33,38 @@ void ProcessKeyEvents() {
     GLFWwindow *window = GLFWIntegration::GetWindowPointer();
     int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
 
-    if (Input::KeyPressed(GLFW_KEY_ESCAPE))
+    if (Input::KeyDown(GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(GLFWIntegration::GetWindowPointer(), true);
-    if (Input::KeyPressed(GLFW_KEY_W))
+    if (Input::KeyDown(GLFW_KEY_W))
         navigatorCamera.ProcessKeyboard(FORWARD, World::GetDeltaTime());
-    if (Input::KeyPressed(GLFW_KEY_S))
+    if (Input::KeyDown(GLFW_KEY_S))
         navigatorCamera.ProcessKeyboard(BACKWARD, World::GetDeltaTime());
-    if (Input::KeyPressed(GLFW_KEY_A))
+    if (Input::KeyDown(GLFW_KEY_A))
         navigatorCamera.ProcessKeyboard(LEFT, World::GetDeltaTime());
-    if (Input::KeyPressed(GLFW_KEY_D))
+    if (Input::KeyDown(GLFW_KEY_D))
         navigatorCamera.ProcessKeyboard(RIGHT, World::GetDeltaTime());
-    if (Input::KeyPressed(GLFW_KEY_Q))
+    if (Input::KeyDown(GLFW_KEY_Q))
         navigatorCamera.ProcessKeyboard(UP, World::GetDeltaTime());
-    if (Input::KeyPressed(GLFW_KEY_E))
+    if (Input::KeyDown(GLFW_KEY_E))
         navigatorCamera.ProcessKeyboard(DOWN, World::GetDeltaTime());
 
-    if (Input::KeyPressed(GLFW_KEY_SPACE))
+    if (Input::KeyDown(GLFW_KEY_SPACE))
         g_demDisplayMode = DEMDisplayMode::WIREFRAME;
-    if (Input::KeyPressed(GLFW_KEY_F))
+    if (Input::KeyDown(GLFW_KEY_F))
         g_demDisplayMode = DEMDisplayMode::FILL;
-    if (Input::KeyPressed(GLFW_KEY_G))
+    if (Input::KeyDown(GLFW_KEY_G))
         g_demRenderMode = DEMRenderMode::GRAYSCALE;
-    if (Input::KeyPressed(GLFW_KEY_B))
+    if (Input::KeyDown(GLFW_KEY_B))
         g_demRenderMode = DEMRenderMode::BIOME;
 
-    if (Input::KeyPressed(GLFW_KEY_M)) {
+    if (Input::KeyPress(GLFW_KEY_M)) {
         switch (cursorMode) {
         case GLFW_CURSOR_DISABLED:
+            Settings::SetIsShown(true);
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             break;
         case GLFW_CURSOR_NORMAL:
+            Settings::SetIsShown(false);
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             break;
         }

@@ -1,6 +1,7 @@
 #include "Settings.h"
 
 namespace Settings {
+bool g_isShown = false;
 
 // Terrain tessellation parameters
 int g_minTessLevel = 8;
@@ -19,6 +20,9 @@ std::vector<glm::vec3> g_biomeColors = {
     glm::vec3(1.0f, 1.0f, 1.0f)   // pure snow
 };
 std::vector<float> g_biomeHeights = { 0.2f, 0.4f, 0.6f, 0.8f, 0.9f };
+
+bool IsShown() { return g_isShown; }
+void SetIsShown(bool isShown) { g_isShown = isShown; }
 
 int &GetMinTessLevel() { return g_minTessLevel; }
 int &GetMaxTessLevel() { return g_maxTessLevel; }
