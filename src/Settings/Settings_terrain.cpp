@@ -29,6 +29,31 @@ void CreateTerrainSettings() {
         ImGui::SliderFloat("Ambient Strength", &GetAmbientStrength(), 0.0f, 1.0f);
     }
 
+    if (ImGui::CollapsingHeader("Biome Mapping")) {
+        ImGui::Text("Biome Layer Colors");
+        auto &biomeColors = GetBiomeColors();
+        for (int i = biomeColors.size() - 1; i >= 0; i--) {
+            std::string label = "Biome Layer " + std::to_string(biomeColors.size() - i);
+            label += (i == 0) ? " (Bottom)" : "";
+            label += (i == biomeColors.size() - 1) ? " (Top)" : "";
+
+            ImGui::ColorEdit3(label.c_str(), glm::value_ptr(biomeColors[i]));
+        }
+
+        ImGui::Text("Biome Heights");
+        auto &biomeHeights = GetBiomeHeights();
+        for (int i = biomeHeights.size() - 1; i >= 0; i--) {
+            std::string label = "Biome Height Layer " + std::to_string(biomeHeights.size() - i);
+            label += (i == 0) ? " (Bottom)" : "";
+            label += (i == biomeHeights.size() - 1) ? " (Top)" : "";
+
+            float minVal = (i == 0) ? 0.0f : biomeHeights[i - 1];
+            float maxVal = (i == biomeHeights.size() - 1) ? 1.0f : biomeHeights[i + 1];
+
+            ImGui::SliderFloat(label.c_str(), &biomeHeights[i], minVal, maxVal);
+        }
+    }
+
     ImGui::End();
 }
 

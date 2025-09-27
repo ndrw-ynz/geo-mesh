@@ -7,18 +7,8 @@ void InitTerrain() {
 
     Shader *terrainShader = AssetManager::GetShader("terrainShader");
     int numBiomes = 5;
-    float biomeHeights[5] = { 0.2f, 0.4f, 0.6f, 0.8f, 1.1f };
-    glm::vec3 biomeColors[5] = {
-        glm::vec3(0.1f, 0.1f, 0.3f),  // deep frozen water
-        glm::vec3(0.3f, 0.5f, 0.7f),  // glacial blue
-        glm::vec3(0.6f, 0.7f, 0.8f),  // icy rock
-        glm::vec3(0.8f, 0.85f, 0.9f), // compacted snow
-        glm::vec3(1.0f, 1.0f, 1.0f)   // pure snow
-    };
     terrainShader->use();
     terrainShader->setInt("uNumBiomes", numBiomes);
-    terrainShader->setFloatArray("uBiomeHeights", biomeHeights, numBiomes);
-    terrainShader->setVec3Array("uBiomeColors", biomeColors, numBiomes);
 
     terrainShader->setVec3("uLightDir", glm::vec3(-1.0f, -1.0f, 1.0f));
 
@@ -41,7 +31,7 @@ void TerrainPass() {
 
     // Lambertian shading, uncomment lines to experiment
     // float t = glfwGetTime();
-    // terrainShader.setVec3("uLightDir", glm::vec3(cos(t * 2.0), sin(t * 2.0), 1.0f));
+    // terrainShader->setVec3("uLightDir", glm::vec3(cos(t * 2.0), sin(t * 2.0), 1.0f));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, icelandTexture->GetHandle());
 
@@ -65,6 +55,9 @@ void TerrainPass() {
     // Lighting/shading params
     terrainShader->setVec3("uLightColor", Settings::GetLightColor());
     terrainShader->setFloat("uAmbientStrength", Settings::GetAmbientStrength());
+    // Biome params
+    terrainShader->setVec3Array("uBiomeColors", Settings::GetBiomeColors().data(), 5);
+    terrainShader->setFloatArray("uBiomeHeights", Settings::GetBiomeHeights().data(), 5);
 
     glBindVertexArray(terrain.GetTerrainMesh().GetMeshBuffer().GetVAO());
     // toggle wireframe mode
