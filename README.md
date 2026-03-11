@@ -65,3 +65,7 @@ After building the project, simply run the GeoMesh executable found in the `/bui
 - **F** - Force fill mode
 - **G** - Grayscale rendering
 - **B** - Biome rendering
+
+### Collaborators
+Andrew Albert A. Yanza
+Powell E. Payofilin
